@@ -1,0 +1,13 @@
+# Pipeline A (baseline-plus). Values are starting points; tune on the dev set only.
+name: pipeline_a
+seed: 0
+enhancement:
+  - {op: contrast_stretch, low_pct: 1, high_pct: 99}
+  - {op: gaussian, ksize: 5, sigma: 1.0}
+segmentation:
+  method: otsu          # global | otsu
+  dark_objects: true
+morphology:
+  - {op: opening, shape: square, size: 3}
+measurement:
+  min_area: 20

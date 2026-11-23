@@ -1,0 +1,16 @@
+# Pipeline B (noise + adaptive). Values are starting points; tune on the dev set only.
+name: pipeline_b
+seed: 0
+enhancement:
+  - {op: gamma, gamma: 0.8}
+restoration:
+  - {op: median, size: 3}       # chosen per noise type from the restoration study
+segmentation:
+  method: adaptive              # adaptive | sobel | log
+  block_size: 51
+  c: 5
+morphology:
+  - {op: opening, shape: disk, size: 3}
+  - {op: closing, shape: disk, size: 5}
+measurement:
+  min_area: 20

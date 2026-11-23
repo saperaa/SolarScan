@@ -1,0 +1,21 @@
+# Pipeline C (full refinement). Values are starting points; tune on the dev set only.
+name: pipeline_c
+seed: 0
+enhancement:
+  - {op: flatten_background, ksize: 101}
+frequency:
+  - {op: notch, target: busbars}   # optional; kept only if the ablation shows it helps
+segmentation:
+  method: adaptive
+  block_size: 51
+  c: 5
+morphology:
+  - {op: closing, shape: disk, size: 5}   # reconnect broken cracks
+  - {op: fill_holes}
+  - {op: opening, shape: disk, size: 3}
+measurement:
+  min_area: 30
+  max_aspect: 25          # reject long thin grid lines
+decision:
+  rule: count_greater_than
+  value: 0

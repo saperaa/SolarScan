@@ -1,0 +1,9 @@
+# Baseline 1 (spec 3.3): fixed global threshold of 127 on the raw grayscale image.
+name: baseline_trivial
+seed: 0
+segmentation:
+  method: global
+  threshold: 127
+  dark_objects: true
+measurement:
+  min_area: 0

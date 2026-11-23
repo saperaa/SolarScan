@@ -1,0 +1,10 @@
+# Baseline 2 (spec 3.3): Otsu threshold followed by one 3x3 opening.
+name: baseline_simple
+seed: 0
+segmentation:
+  method: otsu
+  dark_objects: true
+morphology:
+  - {op: opening, shape: square, size: 3}
+measurement:
+  min_area: 0
