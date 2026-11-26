@@ -58,3 +58,31 @@ def contrast_stretch(img, low_pct, high_pct):
     result = (img.astype(np.float64) - low) * 255 / (high - low)
 
     return np.clip(result, 0, 255).astype(np.uint8)
+
+
+def histogram_equalization(img):
+    """
+    Apply histogram equalization using NumPy.
+
+    Input: uint8 image (0-255).
+    Output: uint8 image (0-255).
+    """
+    hist = np.bincount(img.ravel(), minlength=256)
+
+    cdf = hist.cumsum()
+
+    nonzero_cdf = cdf[cdf > 0]
+
+    if len(nonzero_cdf) <= 1:
+        return img.copy()
+
+    cdf_min = nonzero_cdf[0]
+    total_pixels = img.size
+
+    lookup_table = np.round(
+        255 * (cdf - cdf_min) / (total_pixels - cdf_min)
+    )
+
+    lookup_table = np.clip(lookup_table, 0, 255).astype(np.uint8)
+
+    return lookup_table[img]
