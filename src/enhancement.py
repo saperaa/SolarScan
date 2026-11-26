@@ -1,6 +1,6 @@
 import numpy as np
 import cv2
-
+from src.restoration import median_filter
 
 def negative(img):
     """
@@ -236,37 +236,10 @@ def median_smooth(img, ksize, border="reflect"):
     if ksize <= 0 or ksize % 2 == 0:
         raise ValueError("ksize must be a positive odd number")
 
-    border_modes = {
-        "reflect": "reflect",
-        "replicate": "edge",
-        "zero": "constant"
-    }
-
-    if border not in border_modes:
+    if border not in ("reflect", "replicate", "zero"):
         raise ValueError("Invalid border mode")
 
-    pad = ksize // 2
-
-    padded = np.pad(
-        img,
-        ((pad, pad), (pad, pad)),
-        mode=border_modes[border]
-    )
-
-    output = np.zeros_like(img)
-
-    for i in range(img.shape[0]):
-        for j in range(img.shape[1]):
-
-            region = padded[
-                i:i + ksize,
-                j:j + ksize
-            ]
-
-            output[i, j] = np.median(region)
-
-    return output
-
+    return median_filter(img, size=ksize, border=border)
 
 def laplacian_sharpen(img, alpha):
     """
@@ -330,12 +303,19 @@ def gradient_sharpen(img):
 
 def flatten_background(img, ksize):
     """
-    Flatten uneven background illumination.
+    Flatten uneven background illumination using OpenCV box blur.
 
     Input: uint8 image (0-255).
     Output: uint8 image (0-255).
     """
-    background = mean_filter(img, ksize)
+    if ksize <= 0 or ksize % 2 == 0:
+        raise ValueError("ksize must be a positive odd number")
+
+    background = cv2.blur(
+        img,
+        (ksize, ksize),
+        borderType=cv2.BORDER_REFLECT_101
+    )
 
     img_float = img.astype(np.float64)
     background_float = background.astype(np.float64)
@@ -346,6 +326,4 @@ def flatten_background(img, ksize):
         + np.mean(background_float)
     )
 
-    return np.clip(
-        result, 0, 255
-    ).astype(np.uint8)
+    return np.clip(result, 0, 255).astype(np.uint8)
