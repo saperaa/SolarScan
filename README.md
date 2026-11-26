@@ -58,6 +58,7 @@ SolarScan/
 │   ├── enhancement.py     point operations, histograms, spatial filters
 │   ├── restoration.py     noise models and restoration filters
 │   ├── frequency.py       DFT, spectrum, frequency-domain filters
+│   ├── psnr_study.py      restoration PSNR-per-noise-type study
 │   ├── segmentation.py    edge detection, thresholding, Hough transform
 │   ├── morphology.py      morphological operations, hole filling, measurement
 │   ├── pipeline.py        baselines and Pipelines A, B, C
