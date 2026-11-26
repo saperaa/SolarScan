@@ -194,3 +194,31 @@ def gaussian_filter(img, ksize, sigma, border="reflect"):
     result = convolve2d(img, kernel, border)
 
     return np.clip(np.round(result), 0, 255).astype(np.uint8)
+
+
+def median_smooth(img, ksize, border="reflect"):
+    """
+    Apply median filtering to remove salt-and-pepper noise.
+
+    Input: uint8 image (0-255).
+    Output: uint8 image (0-255).
+    """
+    if ksize <= 0 or ksize % 2 == 0:
+        raise ValueError("ksize must be a positive odd number")
+
+    pad = ksize // 2
+
+    padded = np.pad(
+        img,
+        ((pad, pad), (pad, pad)),
+        mode=border if border in ("reflect", "edge") else "constant"
+    )
+
+    output = np.zeros_like(img)
+
+    for i in range(img.shape[0]):
+        for j in range(img.shape[1]):
+            region = padded[i:i + ksize, j:j + ksize]
+            output[i, j] = np.median(region)
+
+    return output
