@@ -2,7 +2,7 @@
 
 import numpy as np
 
-from src.pipeline import PipelineResult
+from src.pipeline import PipelineResult, boxes_to_mask
 
 
 def test_pipeline_result_decision():
@@ -11,3 +11,12 @@ def test_pipeline_result_decision():
 
     found = PipelineResult(mask=np.ones((4, 4), dtype=bool), boxes=[(0, 0, 3, 3)])
     assert found.count == 1 and found.decision == "defective"
+
+
+def test_boxes_to_mask_rasterizes_inclusive_boxes_and_clips_to_image():
+    actual = boxes_to_mask([(-1, 1, 1, 3), (3, 3, 8, 8)], (4, 5))
+    expected = np.zeros((4, 5), dtype=bool)
+    expected[1:4, 0:2] = True
+    expected[3, 3:5] = True
+
+    np.testing.assert_array_equal(actual, expected)

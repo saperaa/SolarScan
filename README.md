@@ -83,9 +83,24 @@ pytest
 ## Usage
 
 ```bash
-# Not implemented yet — available from Week 12
-python -m src.run_pipeline --image path/to/cell.jpg --config configs/pipeline_c.yaml
+# Run one image and optionally save every stage and the box overlay.
+python -m src.run_pipeline --image path/to/cell.jpg --config configs/pipeline_c.yaml \
+  --output-dir experiments/runs/single-image
+
+# Evaluate only IDs from a locked development/test manifest.
+python -m src.evaluate --image-dir path/to/JPEGImages \
+  --annotation-dir path/to/Annotations --config configs/pipeline_c.yaml \
+  --ids-file data/splits/dev.txt --output-dir experiments/runs/pipeline-c-dev
+
+# Launch the local Gradio demo.
+python -m app.app --config configs/pipeline_c.yaml
 ```
+
+These entry points call the shared `src.pipeline.run` backend, which is still a scaffold in
+this branch. End-to-end inference becomes available after the dispatcher, baselines, and
+remaining image-processing stages are integrated. Evaluation writes per-image metrics and a
+summary under the ignored `experiments/runs/` directory; use the held-out test manifest only
+for the final evaluation.
 
 ## Results
 
