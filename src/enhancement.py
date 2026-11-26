@@ -1,5 +1,5 @@
 import numpy as np
-
+import cv2
 
 def negative(img):
     """
@@ -86,3 +86,18 @@ def histogram_equalization(img):
     lookup_table = np.clip(lookup_table, 0, 255).astype(np.uint8)
 
     return lookup_table[img]
+
+
+def clahe(img, clip, tiles):
+    """
+    Apply CLAHE to a grayscale image.
+
+    Input: uint8 image (0-255).
+    Output: uint8 image (0-255).
+    """
+    clahe_obj = cv2.createCLAHE(
+        clipLimit=clip,
+        tileGridSize=tiles
+    )
+
+    return clahe_obj.apply(img)
