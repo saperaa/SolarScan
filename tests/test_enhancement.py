@@ -337,3 +337,43 @@ def test_all_functions_output_range():
         assert result.dtype == np.uint8
         assert result.min() >= 0
         assert result.max() <= 255
+
+
+@pytest.mark.parametrize(
+    ("border", "cv_border"),
+    [
+        ("zero", cv2.BORDER_CONSTANT),
+        ("replicate", cv2.BORDER_REPLICATE),
+        ("reflect", cv2.BORDER_REFLECT_101),
+    ],
+)
+def test_convolve2d_matches_opencv(border, cv_border):
+    rng = np.random.default_rng(0)
+    img = rng.integers(0, 256, (20, 24), dtype=np.uint8)
+    kernel = rng.random((5, 5))
+
+    result = convolve2d(img, kernel, border)
+    # cv2.filter2D computes correlation, so flip the kernel to get convolution.
+    expected = cv2.filter2D(
+        img.astype(np.float64), -1, np.flip(kernel), borderType=cv_border
+    )
+
+    assert np.abs(result - expected).max() < 1e-9
+
+
+def test_convolve2d_mean_kernel_hand_worked():
+    # Worked on paper, 3x3 mean kernel (every weight 1/9), zero border:
+    #   centre (1, 1): (10+20+30+40+50+60+70+80+90) / 9 = 450 / 9 = 50
+    #   corner (0, 0): only 10, 20, 40, 50 are inside -> 120 / 9 = 13.33
+    img = np.array(
+        [[10, 20, 30],
+         [40, 50, 60],
+         [70, 80, 90]],
+        dtype=np.uint8
+    )
+    kernel = np.full((3, 3), 1 / 9)
+
+    result = convolve2d(img, kernel, "zero")
+
+    assert result[1, 1] == pytest.approx(50.0)
+    assert result[0, 0] == pytest.approx(120 / 9)

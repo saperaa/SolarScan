@@ -2,6 +2,7 @@ import numpy as np
 import cv2
 from src.restoration import median_filter
 
+
 def negative(img):
     """
     Apply negative transformation to a grayscale image.
@@ -240,6 +241,7 @@ def median_smooth(img, ksize, border="reflect"):
         raise ValueError("Invalid border mode")
 
     return median_filter(img, size=ksize, border=border)
+
 
 def laplacian_sharpen(img, alpha):
     """
