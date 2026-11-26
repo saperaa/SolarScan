@@ -152,3 +152,21 @@ def convolve2d(img, kernel, border):
             output[i, j] = np.sum(region * flipped_kernel)
 
     return output
+
+
+def mean_filter(img, ksize, border="reflect"):
+    """
+    Apply mean filtering to reduce image noise.
+
+    Input: uint8 image (0-255).
+    Output: uint8 image (0-255).
+    """
+    if ksize <= 0 or ksize % 2 == 0:
+        raise ValueError("ksize must be a positive odd number")
+
+    kernel = np.ones((ksize, ksize), dtype=np.float64)
+    kernel /= (ksize * ksize)
+
+    result = convolve2d(img, kernel, border)
+
+    return np.clip(np.round(result), 0, 255).astype(np.uint8)
