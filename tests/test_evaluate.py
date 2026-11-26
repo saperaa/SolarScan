@@ -194,3 +194,49 @@ def test_read_ids_file_rejects_duplicates_and_empty_files(tmp_path):
     ids_file.write_text("# no IDs\n\n", encoding="utf-8")
     with pytest.raises(ValueError, match="empty"):
         read_ids_file(ids_file)
+
+
+def _write_two_class_dataset(tmp_path):
+    images = tmp_path / "images"
+    annotations = tmp_path / "annotations"
+    images.mkdir()
+    annotations.mkdir()
+    cv2.imwrite(str(images / "cell.png"), np.full((20, 20), 180, dtype=np.uint8))
+    (annotations / "cell.xml").write_text(
+        "<annotation>"
+        "<object><name>crack</name><bndbox><xmin>3</xmin><ymin>3</ymin>"
+        "<xmax>6</xmax><ymax>6</ymax></bndbox></object>"
+        "<object><name>scratch</name><bndbox><xmin>11</xmin><ymin>11</ymin>"
+        "<xmax>15</xmax><ymax>15</ymax></bndbox></object>"
+        "</annotation>",
+        encoding="utf-8",
+    )
+    return images, annotations
+
+
+def _predict_crack_only(image, config):
+    mask = np.zeros(image.shape, dtype=bool)
+    mask[2:6, 2:6] = True
+    return PipelineResult(mask=mask, boxes=[(2, 2, 5, 5)])
+
+
+def test_evaluate_ignores_out_of_scope_classes(tmp_path):
+    images, annotations = _write_two_class_dataset(tmp_path)
+
+    summary = evaluate_dataset(images, annotations, {}, pipeline_runner=_predict_crack_only)
+
+    record = summary.records[0]
+    assert record.ground_truth_count == 1          # the scratch box is not scored
+    assert json.loads(record.ground_truth_classes) == ["crack"]
+    assert summary.mean_iou == pytest.approx(1.0)
+
+
+def test_evaluate_class_list_can_be_set_in_config(tmp_path):
+    images, annotations = _write_two_class_dataset(tmp_path)
+    config = {"evaluation": {"classes": ["crack", "scratch"]}}
+
+    summary = evaluate_dataset(
+        images, annotations, config, pipeline_runner=_predict_crack_only
+    )
+
+    assert summary.records[0].ground_truth_count == 2

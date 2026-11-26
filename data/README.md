@@ -36,3 +36,15 @@ size and seed before final evaluation. Never use test results for tuning.
 |------|--------|---------|------:|---------|
 | dev.txt | trainval, seed 0, dev fraction 0.7 | `02c8a05de5281d5deb55534bbb1cfb1265d4b8495b6c3c23f0d0fd9e58f0ca5e` | 3,150 | 2026-11-26 |
 | test.txt | PVEL-AD test, sample not yet locked | | | |
+
+## Locking the test sample (run once)
+
+```
+python -m src.lock_test_split --image-dir <external test JPEGImages> \
+    --annotation-dir <external test XMLs> --size 1000 --seed 0
+```
+
+It samples 1,000 IDs that have both an image and an XML (seeded), writes `test.txt` next to
+the existing `dev.txt` and prints the SHA-256 to copy into the table above. It never opens a
+test image. If a test ID has the same name as a dev ID, it stops with "must be disjoint";
+tell the Tech Lead rather than renaming files.

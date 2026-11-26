@@ -43,9 +43,9 @@ Record the date sent and the date access was granted here:
 | crack | 1,260 | 2,797 | yes |
 | black_core | 1,028 | 3,877 | yes |
 | thick_line | 981 | 1,585 | yes |
-| horizontal_dislocation | 798 | 1,582 | decide in Week 10 |
-| short_circuit | 492 | 1,215 | decide in Week 10 |
-| vertical_dislocation | 137 | 271 | decide in Week 10 |
+| horizontal_dislocation | 798 | 1,582 | yes (decided 26 Nov) |
+| short_circuit | 492 | 1,215 | yes (decided 26 Nov) |
+| vertical_dislocation | 137 | 271 | yes (decided 26 Nov) |
 | star_crack | 135 | 83 | yes |
 | printing_error | 32 | 48 | no (too rare) |
 | corner | 9 | 12 | no |
@@ -56,8 +56,31 @@ Record the date sent and the date access was granted here:
 
 - **Polycrystalline grain boundaries** look dark and crack-like → main expected false-positive source.
 - **Busbars and grid fingers** are periodic → visible as peaks in the Fourier spectrum.
-- **Very large dataset** → the dev and test sets will be fixed random subsamples
+- **Very large dataset** → the dev and test sets are fixed random subsamples
   (seeded), with the sampling recorded in `data/splits/`.
+- **Two image sizes** (dev set): 2,794 cells are 1024 × 1024 and 356 are 512 × 512. Pixel
+  parameters (`block_size`, `min_area`, structuring-element size) must scale with the
+  image width, or the 512² cells get twice the effective kernel size.
+- **Near-black cells**: the 10th percentile of per-image mean intensity is about 1, so some
+  cells are almost entirely dark (black core / dead cells). Thresholding marks the whole
+  cell; check how these affect IoU before tuning.
+
+## Class decision (26 Nov)
+
+The three classes left open in Week 9 are **in scope**. All three have a visible dark
+signature in EL images and more than 50 training boxes, which is the rule in
+`docs/problem_statement.md`:
+
+| Class | trainval boxes | Reason |
+|-------|---------------:|--------|
+| horizontal_dislocation | 798 | dark band across the cell |
+| short_circuit | 492 | whole cell or large region dark |
+| vertical_dislocation | 137 | dark band, above the 50-box minimum |
+
+Boxes of `corner`, `fragment`, `scratch` and `printing_error` are ignored by the evaluator,
+so an image whose only boxes are out of scope counts as defect-free. To change the list,
+edit `src.data.IN_SCOPE_CLASSES` (or set `evaluation: classes:` in a config) and say so
+in the PR.
 
 ## Fallback
 

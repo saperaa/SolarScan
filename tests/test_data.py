@@ -147,6 +147,28 @@ def test_save_split_refuses_to_overwrite_locked_manifests(tmp_path):
     assert (output_dir / "test.txt").read_text(encoding="utf-8") == "test\n"
 
 
+def test_save_split_writes_test_when_identical_dev_is_already_locked(tmp_path):
+    output_dir = tmp_path / "splits"
+    output_dir.mkdir()
+    (output_dir / "dev.txt").write_text("a\nb\n", encoding="utf-8")
+
+    digest = save_split(["b", "a"], ["t2", "t1"], output_dir)
+
+    assert (output_dir / "dev.txt").read_text(encoding="utf-8") == "a\nb\n"
+    assert (output_dir / "test.txt").read_text(encoding="utf-8") == "t1\nt2\n"
+    assert digest == hashlib.sha256(b"t1\nt2\n").hexdigest()
+
+
+def test_save_split_refuses_when_locked_dev_differs(tmp_path):
+    output_dir = tmp_path / "splits"
+    output_dir.mkdir()
+    (output_dir / "dev.txt").write_text("a\n", encoding="utf-8")
+
+    with pytest.raises(FileExistsError, match="refusing to overwrite"):
+        save_split(["other"], ["t1"], output_dir)
+    assert not (output_dir / "test.txt").exists()
+
+
 @pytest.mark.parametrize(
     ("kind", "level"),
     [
