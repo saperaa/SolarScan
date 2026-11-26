@@ -387,7 +387,7 @@ def test_all_functions_output_range():
         ("reflect", cv2.BORDER_REFLECT_101),
     ],
 )
-def test_convolve2d_matches_opencv(border, cv_border):
+def test_convolve2d_matches_opencv_random_image(border, cv_border):
     rng = np.random.default_rng(0)
     img = rng.integers(0, 256, (20, 24), dtype=np.uint8)
     kernel = rng.random((5, 5))
