@@ -1,5 +1,7 @@
+```python
 import numpy as np
 import cv2
+
 
 def negative(img):
     """
@@ -9,6 +11,7 @@ def negative(img):
     Output: uint8 image (0-255).
     """
     return 255 - img
+
 
 def log_transform(img):
     """
@@ -83,7 +86,9 @@ def histogram_equalization(img):
         255 * (cdf - cdf_min) / (total_pixels - cdf_min)
     )
 
-    lookup_table = np.clip(lookup_table, 0, 255).astype(np.uint8)
+    lookup_table = np.clip(
+        lookup_table, 0, 255
+    ).astype(np.uint8)
 
     return lookup_table[img]
 
@@ -114,7 +119,9 @@ def convolve2d(img, kernel, border):
     img = img.astype(np.float64)
     kernel = np.array(kernel, dtype=np.float64)
 
-    if kernel.ndim != 2 or any(size % 2 == 0 for size in kernel.shape):
+    if kernel.ndim != 2 or any(
+        size % 2 == 0 for size in kernel.shape
+    ):
         raise ValueError("Kernel dimensions must be odd")
 
     pad_h = kernel.shape[0] // 2
@@ -122,19 +129,25 @@ def convolve2d(img, kernel, border):
 
     if border == "zero":
         padded = np.pad(
-            img, ((pad_h, pad_h), (pad_w, pad_w)),
+            img,
+            ((pad_h, pad_h), (pad_w, pad_w)),
             mode="constant"
         )
+
     elif border == "replicate":
         padded = np.pad(
-            img, ((pad_h, pad_h), (pad_w, pad_w)),
+            img,
+            ((pad_h, pad_h), (pad_w, pad_w)),
             mode="edge"
         )
+
     elif border == "reflect":
         padded = np.pad(
-            img, ((pad_h, pad_h), (pad_w, pad_w)),
+            img,
+            ((pad_h, pad_h), (pad_w, pad_w)),
             mode="reflect"
         )
+
     else:
         raise ValueError("Invalid border mode")
 
@@ -144,12 +157,15 @@ def convolve2d(img, kernel, border):
 
     for i in range(img.shape[0]):
         for j in range(img.shape[1]):
+
             region = padded[
                 i:i + kernel.shape[0],
                 j:j + kernel.shape[1]
             ]
 
-            output[i, j] = np.sum(region * flipped_kernel)
+            output[i, j] = np.sum(
+                region * flipped_kernel
+            )
 
     return output
 
@@ -164,12 +180,18 @@ def mean_filter(img, ksize, border="reflect"):
     if ksize <= 0 or ksize % 2 == 0:
         raise ValueError("ksize must be a positive odd number")
 
-    kernel = np.ones((ksize, ksize), dtype=np.float64)
+    kernel = np.ones(
+        (ksize, ksize),
+        dtype=np.float64
+    )
+
     kernel /= (ksize * ksize)
 
     result = convolve2d(img, kernel, border)
 
-    return np.clip(np.round(result), 0, 255).astype(np.uint8)
+    return np.clip(
+        np.round(result), 0, 255
+    ).astype(np.uint8)
 
 
 def gaussian_filter(img, ksize, sigma, border="reflect"):
@@ -185,15 +207,24 @@ def gaussian_filter(img, ksize, sigma, border="reflect"):
     if sigma <= 0:
         raise ValueError("sigma must be positive")
 
-    ax = np.arange(-(ksize // 2), ksize // 2 + 1)
+    ax = np.arange(
+        -(ksize // 2),
+        ksize // 2 + 1
+    )
+
     xx, yy = np.meshgrid(ax, ax)
 
-    kernel = np.exp(-(xx**2 + yy**2) / (2 * sigma**2))
+    kernel = np.exp(
+        -(xx**2 + yy**2) / (2 * sigma**2)
+    )
+
     kernel /= kernel.sum()
 
     result = convolve2d(img, kernel, border)
 
-    return np.clip(np.round(result), 0, 255).astype(np.uint8)
+    return np.clip(
+        np.round(result), 0, 255
+    ).astype(np.uint8)
 
 
 def median_smooth(img, ksize, border="reflect"):
@@ -206,19 +237,33 @@ def median_smooth(img, ksize, border="reflect"):
     if ksize <= 0 or ksize % 2 == 0:
         raise ValueError("ksize must be a positive odd number")
 
+    border_modes = {
+        "reflect": "reflect",
+        "replicate": "edge",
+        "zero": "constant"
+    }
+
+    if border not in border_modes:
+        raise ValueError("Invalid border mode")
+
     pad = ksize // 2
 
     padded = np.pad(
         img,
         ((pad, pad), (pad, pad)),
-        mode=border if border in ("reflect", "edge") else "constant"
+        mode=border_modes[border]
     )
 
     output = np.zeros_like(img)
 
     for i in range(img.shape[0]):
         for j in range(img.shape[1]):
-            region = padded[i:i + ksize, j:j + ksize]
+
+            region = padded[
+                i:i + ksize,
+                j:j + ksize
+            ]
+
             output[i, j] = np.median(region)
 
     return output
@@ -237,11 +282,15 @@ def laplacian_sharpen(img, alpha):
         [0, 1, 0]
     ], dtype=np.float64)
 
-    laplacian = convolve2d(img, kernel, border="reflect")
+    laplacian = convolve2d(
+        img, kernel, border="reflect"
+    )
 
     result = img.astype(np.float64) - alpha * laplacian
 
-    return np.clip(result, 0, 255).astype(np.uint8)
+    return np.clip(
+        result, 0, 255
+    ).astype(np.uint8)
 
 
 def gradient_sharpen(img):
@@ -263,13 +312,24 @@ def gradient_sharpen(img):
         [1, 2, 1]
     ], dtype=np.float64)
 
-    gx = convolve2d(img, gx_kernel, border="reflect")
-    gy = convolve2d(img, gy_kernel, border="reflect")
+    gx = convolve2d(
+        img, gx_kernel, border="reflect"
+    )
+
+    gy = convolve2d(
+        img, gy_kernel, border="reflect"
+    )
 
     magnitude = np.sqrt(gx**2 + gy**2)
 
+    result = img.astype(np.float64) + magnitude
 
-    def flatten_background(img, ksize):
+    return np.clip(
+        result, 0, 255
+    ).astype(np.uint8)
+
+
+def flatten_background(img, ksize):
     """
     Flatten uneven background illumination.
 
@@ -281,9 +341,13 @@ def gradient_sharpen(img):
     img_float = img.astype(np.float64)
     background_float = background.astype(np.float64)
 
-    result = img_float - background_float + np.mean(background_float)
+    result = (
+        img_float
+        - background_float
+        + np.mean(background_float)
+    )
 
-    return np.clip(result, 0, 255).astype(np.uint8)
-    result = img.astype(np.float64) + magnitude
-
-    return np.clip(result, 0, 255).astype(np.uint8)
+    return np.clip(
+        result, 0, 255
+    ).astype(np.uint8)
+```
