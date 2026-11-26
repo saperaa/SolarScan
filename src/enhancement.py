@@ -242,3 +242,32 @@ def laplacian_sharpen(img, alpha):
     result = img.astype(np.float64) - alpha * laplacian
 
     return np.clip(result, 0, 255).astype(np.uint8)
+
+
+def gradient_sharpen(img):
+    """
+    Sharpen a grayscale image using Sobel gradients.
+
+    Input: uint8 image (0-255).
+    Output: uint8 image (0-255).
+    """
+    gx_kernel = np.array([
+        [-1, 0, 1],
+        [-2, 0, 2],
+        [-1, 0, 1]
+    ], dtype=np.float64)
+
+    gy_kernel = np.array([
+        [-1, -2, -1],
+        [0, 0, 0],
+        [1, 2, 1]
+    ], dtype=np.float64)
+
+    gx = convolve2d(img, gx_kernel, border="reflect")
+    gy = convolve2d(img, gy_kernel, border="reflect")
+
+    magnitude = np.sqrt(gx**2 + gy**2)
+
+    result = img.astype(np.float64) + magnitude
+
+    return np.clip(result, 0, 255).astype(np.uint8)
