@@ -23,3 +23,20 @@ def log_transform(img):
     result = c * np.log1p(img_float)
 
     return np.clip(result, 0, 255).astype(np.uint8)
+
+
+def gamma_correction(img, gamma):
+    """
+    Apply gamma correction to a grayscale image.
+
+    Input: uint8 image (0-255), positive gamma value.
+    Output: uint8 image (0-255).
+    """
+    if gamma <= 0:
+        raise ValueError("Gamma must be positive")
+
+    img_float = img.astype(np.float64) / 255.0
+
+    result = 255 * (img_float ** gamma)
+
+    return np.clip(result, 0, 255).astype(np.uint8)
