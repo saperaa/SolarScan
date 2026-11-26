@@ -24,4 +24,4 @@ Updated at the end of each phase.
 
 | Member | Work package | Files | Experiments run | PRs merged | PRs reviewed |
 |--------|--------------|-------|-----------------|-----------:|-------------:|
-| | | | | | |
+| @abdelrahman22wanas | Morphology & Evaluation (PR #16 open) | `src/morphology.py`, `src/evaluate.py`, `src/run_pipeline.py`, `app/`, tests, docs | Not run — shared pipeline stages are incomplete | 0 | 0 |
