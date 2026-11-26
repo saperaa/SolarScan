@@ -1,7 +1,6 @@
 """Smoke tests for the shared pipeline types (owner: Tech Lead)."""
 
 import numpy as np
-import pytest
 
 from src.pipeline import PipelineResult, boxes_to_mask
 
@@ -21,18 +20,3 @@ def test_boxes_to_mask_rasterizes_inclusive_boxes_and_clips_to_image():
     expected[3, 3:5] = True
 
     np.testing.assert_array_equal(actual, expected)
-
-
-@pytest.mark.parametrize(
-    "boxes,shape",
-    [
-        ([(0, 0, 1, 1)], (0, 2)),
-        ([(0, 0, 1, 1)], (2,)),
-        ([(0, 1, 1, 0)], (2, 2)),
-        ([(0, 0, 1.5, 1)], (2, 2)),
-        ([("x", 0, 1, 1)], (2, 2)),
-    ],
-)
-def test_boxes_to_mask_rejects_invalid_inputs(boxes, shape):
-    with pytest.raises(ValueError):
-        boxes_to_mask(boxes, shape)

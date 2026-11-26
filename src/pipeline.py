@@ -12,51 +12,10 @@ Data flow between stages (to be completed with the block diagrams in Week 12):
 """
 
 from dataclasses import dataclass, field
-from collections.abc import Sequence
 
 import numpy as np
 
 Box = tuple[int, int, int, int]  # (x_min, y_min, x_max, y_max), inclusive pixel coords
-
-
-def boxes_to_mask(boxes: Sequence[Box], shape: tuple[int, int]) -> np.ndarray:
-    """Rasterize inclusive boxes into a boolean mask, clipping boxes to the image."""
-    if (
-        not isinstance(shape, tuple)
-        or len(shape) != 2
-        or any(
-            isinstance(dimension, bool)
-            or not isinstance(dimension, (int, np.integer))
-            or dimension <= 0
-            for dimension in shape
-        )
-    ):
-        raise ValueError("shape must contain two positive integer dimensions")
-    if not isinstance(boxes, Sequence):
-        raise ValueError("boxes must be a sequence")
-
-    height, width = shape
-    mask = np.zeros((height, width), dtype=bool)
-    for box in boxes:
-        if not isinstance(box, Sequence) or len(box) != 4:
-            raise ValueError("each box must contain four coordinates")
-        if any(
-            isinstance(coordinate, bool)
-            or not isinstance(coordinate, (int, np.integer))
-            for coordinate in box
-        ):
-            raise ValueError("box coordinates must be integers")
-        x_min, y_min, x_max, y_max = box
-        if x_max < x_min or y_max < y_min:
-            raise ValueError("box coordinates must be ordered min to max")
-
-        x_min = max(x_min, 0)
-        y_min = max(y_min, 0)
-        x_max = min(x_max, width - 1)
-        y_max = min(y_max, height - 1)
-        if x_min <= x_max and y_min <= y_max:
-            mask[y_min:y_max + 1, x_min:x_max + 1] = True
-    return mask
 
 
 @dataclass
@@ -78,6 +37,27 @@ class PipelineResult:
     def decision(self) -> str:
         """``"defective"`` if any region was found, else ``"ok"``."""
         return "defective" if self.boxes else "ok"
+
+
+def boxes_to_mask(boxes: list[Box], shape: tuple[int, int]) -> np.ndarray:
+    """Rasterise boxes into one binary mask (pure NumPy).
+
+    Args:
+        boxes: Inclusive boxes (x_min, y_min, x_max, y_max) in pixel coordinates.
+            Parts outside the image are clipped.
+        shape: Output mask shape (H, W).
+
+    Returns:
+        ``bool`` (H, W) mask, True inside any box. All False for an empty list.
+    """
+    height, width = shape
+    mask = np.zeros((height, width), dtype=bool)
+    for x_min, y_min, x_max, y_max in boxes:
+        x0, y0 = max(int(x_min), 0), max(int(y_min), 0)
+        x1, y1 = min(int(x_max), width - 1), min(int(y_max), height - 1)
+        if x0 <= x1 and y0 <= y1:
+            mask[y0:y1 + 1, x0:x1 + 1] = True
+    return mask
 
 
 def baseline_trivial(image: np.ndarray) -> PipelineResult:

@@ -14,9 +14,9 @@ full per-member task list is in the team work guide shared by the Tech Lead.
 | 3 | Enhancement | Yousef Elhusseiny | @YousefElhusseiny | `enhancement.py` | 2-D convolution; histogram equalization | Enhancement comparison; kernel-size study |
 | 4 | Restoration & Frequency | Omar Hany Elazab | @OmarElshaer1 | `restoration.py`, `frequency.py`, `psnr_study.py` | Median filter; Butterworth / notch filter | PSNR per noise type; spatial vs frequency ablation |
 | 5 | Segmentation | Mohamed Alaa | @saperaa | `segmentation.py` | Otsu threshold; Sobel magnitude | Detector & threshold-method studies |
-| 6 | Morphology & Evaluation | | @abdelrahman22wanas | `morphology.py`, `evaluate.py`, `run_pipeline.py`, `app/` | Erosion & dilation; hole filling | Structuring-element size/shape study; failure analysis |
+| 6 | Morphology & Evaluation | Abdelrahman | @abdelrahman22wanas | `morphology.py`, `evaluate.py`, `run_pipeline.py`, `app/` | Erosion & dilation; hole filling | Structuring-element size/shape study; failure analysis |
 
-**Current split:** the Tech Lead (Mohamed) also owns role 5, Segmentation.
+**Current split:** Mohamed also owns role 5 (Segmentation); Abdelrahman also owns role 6 (Morphology & Evaluation).
 
 ## Contribution table (for the report)
 
@@ -24,5 +24,5 @@ Updated at the end of each phase.
 
 | Member | Work package | Files | Experiments run | PRs merged | PRs reviewed |
 |--------|--------------|-------|-----------------|-----------:|-------------:|
-| @abdelrahman22wanas | Morphology & Evaluation (PR #16 open) | `src/morphology.py`, `src/evaluate.py`, `src/run_pipeline.py`, `app/`, tests, docs | Not run — shared pipeline stages are incomplete | 0 | 0 |
+| @abdelrahman22wanas | Data & Baseline; Morphology & Evaluation | `src/morphology.py`, `src/evaluate.py`, `src/run_pipeline.py`, `app/`, tests, docs | Not run yet — pipeline stages incomplete | #8, #16 | — |
 |Yousef Elhusseiny |Enhancement Engineer |src/enhancement.py, tests/test_enhancement.py |Image enhancement testing, convolution comparison with OpenCV, filtering and background flattening |#11 |—  |
