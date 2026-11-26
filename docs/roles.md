@@ -14,7 +14,7 @@ full per-member task list is in the team work guide shared by the Tech Lead.
 | 3 | Enhancement | | | `enhancement.py` | 2-D convolution; histogram equalization | Enhancement comparison; kernel-size study |
 | 4 | Restoration & Frequency | | | `restoration.py`, `frequency.py` | Median filter; Butterworth / notch filter | PSNR per noise type; spatial vs frequency ablation |
 | 5 | Segmentation | | | `segmentation.py` | Otsu threshold; Sobel magnitude | Detector & threshold-method studies |
-| 6 | Morphology & Evaluation | | | `morphology.py`, `evaluate.py`, `run_pipeline.py`, `app/` | Erosion & dilation; hole filling | Structuring-element study; failure analysis |
+| 6 | Morphology & Evaluation | | @abdelrahman22wanas | `morphology.py`, `evaluate.py`, `run_pipeline.py`, `app/` | Erosion & dilation; hole filling | Structuring-element size/shape study; failure analysis |
 
 **Team of five:** merge roles 1 and 2 — the Tech Lead also owns data, metrics and baselines.
 
