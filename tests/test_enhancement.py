@@ -216,9 +216,51 @@ def test_convolve2d_border_modes(border):
     np.testing.assert_array_equal(result, img.astype(np.float64))
 
 
+@pytest.mark.parametrize(
+    "border, cv_border",
+    [
+        ("zero", cv2.BORDER_CONSTANT),
+        ("replicate", cv2.BORDER_REPLICATE),
+        ("reflect", cv2.BORDER_REFLECT_101),
+    ]
+)
+def test_convolve2d_matches_opencv(border, cv_border):
+    img = np.array(
+        [[10, 20, 30, 40],
+         [50, 60, 70, 80],
+         [90, 100, 110, 120],
+         [130, 140, 150, 160]],
+        dtype=np.uint8
+    )
+
+    kernel = np.array(
+        [[1, 2, 0],
+         [0, 1, 0],
+         [0, 0, -1]],
+        dtype=np.float64
+    )
+
+    result = convolve2d(img, kernel, border)
+
+    # OpenCV filter2D performs correlation, so flip the kernel
+    # to compare it with our convolution implementation.
+    expected = cv2.filter2D(
+        img.astype(np.float64),
+        cv2.CV_64F,
+        np.flip(kernel),
+        borderType=cv_border
+    )
+
+    np.testing.assert_allclose(
+        result,
+        expected,
+        rtol=1e-10,
+        atol=1e-10
+    )
 # --------------------------------------------------
 # 8. Mean Filter
 # --------------------------------------------------
+
 
 def test_mean_filter():
     img = np.full((5, 5), 100, dtype=np.uint8)
@@ -347,7 +389,7 @@ def test_all_functions_output_range():
         ("reflect", cv2.BORDER_REFLECT_101),
     ],
 )
-def test_convolve2d_matches_opencv(border, cv_border):
+def test_convolve2d_matches_opencv_random_image(border, cv_border):
     rng = np.random.default_rng(0)
     img = rng.integers(0, 256, (20, 24), dtype=np.uint8)
     kernel = rng.random((5, 5))
