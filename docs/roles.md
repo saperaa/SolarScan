@@ -24,4 +24,4 @@ Updated at the end of each phase.
 
 | Member | Work package | Files | Experiments run | PRs merged | PRs reviewed |
 |--------|--------------|-------|-----------------|-----------:|-------------:|
-| | | | | | |
+|Yousef Elhusseiny |Enhancement Engineer |src/enhancement.py, tests/test_enhancement.py |Image enhancement testing, convolution comparison with OpenCV, filtering and background flattening |#11 |—  |
