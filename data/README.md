@@ -4,7 +4,7 @@ Raw data is **not** committed. Expected layout after download:
 
 ```
 data/
-├── raw/PVEL-AD/          # extracted dataset (git-ignored)
+├── raw/PVEL-AD/          # extracted images (git-ignored)
 │   └── PVELAD/EL2021/
 │       ├── trainval/JPEGImages/, trainval/Annotations/
 │       └── test/JPEGImages/
@@ -23,12 +23,14 @@ Check the folder names above against future archives and update this file if the
 
 ## Splits
 
-`data/splits/dev.txt` contains 3,150 IDs selected from the 4,500 trainval images with
+`data/splits/dev.txt` contains 3,150 IDs selected from the 4,500 trainval pairs with
 `src.data.make_split(dev_fraction=0.7, seed=0)`. IDs are sorted in the manifest after
 selection for a stable diff. It must not be regenerated.
 
-`data/splits/test.txt` will contain the predeclared held-out test sample. Its size and seed
-must be fixed before final evaluation; never use test results to tune the pipeline.
+Use `src.data.save_split(dev_ids, test_ids, out_dir)` to write one ID per line in sorted order
+and return the SHA-256 of the exact `test.txt` bytes. It refuses to overwrite an existing
+manifest. The held-out sample in `test.txt` comes from the separate external test set; fix its
+size and seed before final evaluation. Never use test results for tuning.
 
 | File | Source | SHA-256 | Count | Created |
 |------|--------|---------|------:|---------|

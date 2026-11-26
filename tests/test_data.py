@@ -1,10 +1,19 @@
 """Tests for image and dataset helpers."""
 
+import hashlib
+
 import cv2
 import numpy as np
 import pytest
 
-from src.data import add_noise, downsample, load_annotations, load_image, make_split
+from src.data import (
+    add_noise,
+    downsample,
+    load_annotations,
+    load_image,
+    make_split,
+    save_split,
+)
 
 
 def test_load_image_converts_color_to_grayscale(tmp_path):
@@ -80,6 +89,62 @@ def test_make_split_is_seeded_and_partitions_all_ids():
     assert len(test) == 3
     assert set(dev).isdisjoint(test)
     assert set(dev + test) == set(ids)
+
+
+def test_save_split_writes_sorted_ids_and_hashes_exact_test_bytes(tmp_path):
+    output_dir = tmp_path / "splits"
+
+    digest = save_split(["dev-b", "dev-a"], ["test-b", "test-a"], output_dir)
+
+    dev_bytes = b"dev-a\ndev-b\n"
+    test_bytes = b"test-a\ntest-b\n"
+    assert (output_dir / "dev.txt").read_bytes() == dev_bytes
+    assert (output_dir / "test.txt").read_bytes() == test_bytes
+    assert digest == hashlib.sha256(test_bytes).hexdigest()
+
+
+def test_save_split_is_order_independent(tmp_path):
+    first_hash = save_split(["b", "a"], ["d", "c"], tmp_path / "first")
+    second_hash = save_split(["a", "b"], ["c", "d"], tmp_path / "second")
+
+    assert first_hash == second_hash
+    assert (tmp_path / "first" / "dev.txt").read_bytes() == (
+        tmp_path / "second" / "dev.txt"
+    ).read_bytes()
+    assert (tmp_path / "first" / "test.txt").read_bytes() == (
+        tmp_path / "second" / "test.txt"
+    ).read_bytes()
+
+
+@pytest.mark.parametrize(
+    ("dev_ids", "test_ids"),
+    [
+        ([], ["test"]),
+        (["dev"], []),
+        (["dev", "dev"], ["test"]),
+        (["dev"], ["test", "test"]),
+        (["same"], ["same"]),
+        (["bad\nid"], ["test"]),
+        (["../cell"], ["test"]),
+        ([".\\cell"], ["test"]),
+        ([" dev"], ["test"]),
+        ([1], ["test"]),
+    ],
+)
+def test_save_split_rejects_invalid_id_sets(tmp_path, dev_ids, test_ids):
+    with pytest.raises(ValueError):
+        save_split(dev_ids, test_ids, tmp_path / "splits")
+
+
+def test_save_split_refuses_to_overwrite_locked_manifests(tmp_path):
+    output_dir = tmp_path / "splits"
+    save_split(["dev"], ["test"], output_dir)
+
+    with pytest.raises(FileExistsError, match="refusing to overwrite"):
+        save_split(["dev"], ["different-test"], output_dir)
+
+    assert (output_dir / "dev.txt").read_text(encoding="utf-8") == "dev\n"
+    assert (output_dir / "test.txt").read_text(encoding="utf-8") == "test\n"
 
 
 @pytest.mark.parametrize(
