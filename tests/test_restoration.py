@@ -62,3 +62,19 @@ def test_max_min_midpoint_order():
 def test_even_size_rejected():
     with pytest.raises(ValueError):
         r.median_filter(np.zeros((5, 5), dtype=np.uint8), 4)
+
+
+def test_median_hand_example_mixed_3x3():
+    # Worked on paper. Image:      12 200   7
+    #                              90  50   3
+    #                              41 255  60
+    # Centre pixel: all 9 values sorted are 3 7 12 41 50 60 90 200 255,
+    # the 5th (middle) value is 50.
+    # Corner (0, 2) with replicate padding: its window is
+    #   200 7 7 / 200 7 7 / 50 3 3 -> sorted 3 3 7 7 7 50 200 200 200,
+    # the 5th value is 7.
+    img = np.array([[12, 200, 7], [90, 50, 3], [41, 255, 60]], dtype=np.uint8)
+    out = r.median_filter(img, 3)
+    assert out[1, 1] == 50
+    assert out[0, 2] == 7
+    assert np.array_equal(out, cv2.medianBlur(img, 3))
