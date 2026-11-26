@@ -6,15 +6,15 @@ import numpy as np
 def global_threshold(image: np.ndarray, threshold: int) -> np.ndarray:
     """Apply an inverse binary threshold to a grayscale uint8 image.
 
-    Pixels less than or equal to ``threshold`` become 255; brighter pixels become
-    0, matching ``cv2.THRESH_BINARY_INV``.
+    Pixels less than or equal to ``threshold`` are True (dark = defect candidate),
+    the same pixels that ``cv2.THRESH_BINARY_INV`` sets to 255.
 
     Args:
         image: Grayscale uint8 NumPy array with shape (H, W), values in [0, 255].
         threshold: Integer threshold in [0, 255].
 
     Returns:
-        A uint8 binary array with shape (H, W), values in {0, 255}.
+        A bool mask with shape (H, W), True = defect candidate.
     """
     if not isinstance(image, np.ndarray) or image.ndim != 2:
         raise ValueError("image must be a two-dimensional grayscale array")
@@ -24,4 +24,4 @@ def global_threshold(image: np.ndarray, threshold: int) -> np.ndarray:
         raise ValueError("threshold must be an integer in [0, 255]")
     if not 0 <= threshold <= 255:
         raise ValueError("threshold must be an integer in [0, 255]")
-    return np.where(image <= threshold, 255, 0).astype(np.uint8)
+    return image <= threshold

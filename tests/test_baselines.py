@@ -23,14 +23,14 @@ def test_global_threshold_matches_opencv_and_hand_worked_example():
     )
     expected_hand = np.array(
         [
-            [255, 255, 255],
-            [0, 0, 0],
-            [255, 255, 0],
-        ],
-        dtype=np.uint8,
+            [True, True, True],
+            [False, False, False],
+            [True, True, False],
+        ]
     )
 
-    np.testing.assert_array_equal(result, expected_cv)
+    assert result.dtype == bool
+    np.testing.assert_array_equal(result, expected_cv == 255)
     np.testing.assert_array_equal(result, expected_hand)
 
 

@@ -45,6 +45,23 @@ def test_load_annotations_converts_voc_coordinates_to_zero_based(tmp_path):
     assert load_annotations(path) == [("crack", (0, 1, 3, 4))]
 
 
+def test_load_annotations_clamps_zero_based_coordinates(tmp_path):
+    xml = """\
+<annotation>
+  <object>
+    <name>finger</name>
+    <bndbox>
+      <xmin>0</xmin><ymin>0</ymin><xmax>3</xmax><ymax>2</ymax>
+    </bndbox>
+  </object>
+</annotation>
+"""
+    path = tmp_path / "zero.xml"
+    path.write_text(xml, encoding="utf-8")
+
+    assert load_annotations(path) == [("finger", (0, 0, 2, 1))]
+
+
 def test_load_annotations_returns_empty_list_for_clean_image(tmp_path):
     path = tmp_path / "clean.xml"
     path.write_text("<annotation />", encoding="utf-8")

@@ -61,11 +61,11 @@ def load_annotations(xml_path: str | Path) -> list[tuple[str, Box]]:
             ymax = int(box_node.findtext("ymax", ""))
         except ValueError as exc:
             raise ValueError(f"Malformed box coordinates in {xml_path}") from exc
-        if xmin < 1 or ymin < 1 or xmax < xmin or ymax < ymin:
+        if xmax < xmin or ymax < ymin:
             raise ValueError(f"Invalid Pascal VOC box coordinates in {xml_path}")
-        annotations.append(
-            (name_node.text.strip(), (xmin - 1, ymin - 1, xmax - 1, ymax - 1))
-        )
+        # VOC is 1-based, but converted datasets sometimes write 0; clamp to the image.
+        box = (max(xmin - 1, 0), max(ymin - 1, 0), max(xmax - 1, 0), max(ymax - 1, 0))
+        annotations.append((name_node.text.strip(), box))
     return annotations
 
 
