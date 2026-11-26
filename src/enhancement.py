@@ -268,6 +268,22 @@ def gradient_sharpen(img):
 
     magnitude = np.sqrt(gx**2 + gy**2)
 
+
+    def flatten_background(img, ksize):
+    """
+    Flatten uneven background illumination.
+
+    Input: uint8 image (0-255).
+    Output: uint8 image (0-255).
+    """
+    background = mean_filter(img, ksize)
+
+    img_float = img.astype(np.float64)
+    background_float = background.astype(np.float64)
+
+    result = img_float - background_float + np.mean(background_float)
+
+    return np.clip(result, 0, 255).astype(np.uint8)
     result = img.astype(np.float64) + magnitude
 
     return np.clip(result, 0, 255).astype(np.uint8)
