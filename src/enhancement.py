@@ -170,3 +170,27 @@ def mean_filter(img, ksize, border="reflect"):
     result = convolve2d(img, kernel, border)
 
     return np.clip(np.round(result), 0, 255).astype(np.uint8)
+
+
+def gaussian_filter(img, ksize, sigma, border="reflect"):
+    """
+    Apply Gaussian filtering to reduce image noise.
+
+    Input: uint8 image (0-255).
+    Output: uint8 image (0-255).
+    """
+    if ksize <= 0 or ksize % 2 == 0:
+        raise ValueError("ksize must be a positive odd number")
+
+    if sigma <= 0:
+        raise ValueError("sigma must be positive")
+
+    ax = np.arange(-(ksize // 2), ksize // 2 + 1)
+    xx, yy = np.meshgrid(ax, ax)
+
+    kernel = np.exp(-(xx**2 + yy**2) / (2 * sigma**2))
+    kernel /= kernel.sum()
+
+    result = convolve2d(img, kernel, border)
+
+    return np.clip(np.round(result), 0, 255).astype(np.uint8)
