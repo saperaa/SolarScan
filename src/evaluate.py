@@ -12,7 +12,7 @@ from typing import Any
 import numpy as np
 
 from src.config import load_pipeline_config
-from src.data import load_annotations, load_image
+from src.data import IN_SCOPE_CLASSES, load_annotations, load_image
 from src.metrics import box_union_iou, count_error, detection_prf
 from src.pipeline import PipelineResult, run
 
@@ -225,6 +225,8 @@ def evaluate_dataset(
 
     Image and annotation IDs must match exactly. Detection metrics aggregate
     true/false positives and negatives over the selected images (micro average).
+    Only ground-truth boxes of in-scope classes are scored: ``src.data.IN_SCOPE_CLASSES``
+    by default, or ``config["evaluation"]["classes"]`` if the config sets it.
     """
     if not isinstance(config, Mapping):
         raise ValueError("config must be a mapping")
@@ -232,11 +234,17 @@ def evaluate_dataset(
     annotations = _index_directory(Path(annotation_dir), {".xml"}, "annotation")
     selected_ids = _select_ids(set(images), set(annotations), ids)
     runner = run if pipeline_runner is None else pipeline_runner
+    evaluation = config.get("evaluation") or {}
+    classes = frozenset(evaluation.get("classes", IN_SCOPE_CLASSES))
 
     records = []
     for image_id in selected_ids:
         image = load_image(images[image_id])
-        ground_truth = load_annotations(annotations[image_id])
+        ground_truth = [
+            (name, box)
+            for name, box in load_annotations(annotations[image_id])
+            if name in classes
+        ]
         ground_truth_boxes = [box for _, box in ground_truth]
 
         start = time.perf_counter()

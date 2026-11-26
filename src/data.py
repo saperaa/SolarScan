@@ -31,6 +31,21 @@ def load_image(path: str | Path) -> np.ndarray:
     return image
 
 
+# Classes scored by every metric (decided 26 Nov, see docs/dataset_card.md): each has
+# >= 50 training boxes and a visible dark signature in EL images. Boxes of any other
+# class (corner, fragment, scratch, printing_error) are ignored during evaluation.
+IN_SCOPE_CLASSES = frozenset({
+    "crack",
+    "finger",
+    "black_core",
+    "thick_line",
+    "star_crack",
+    "horizontal_dislocation",
+    "vertical_dislocation",
+    "short_circuit",
+})
+
+
 def load_annotations(xml_path: str | Path) -> list[tuple[str, Box]]:
     """Parse Pascal VOC objects into class names and zero-based inclusive boxes.
 
@@ -117,8 +132,8 @@ def save_split(
 
     Raises:
         ValueError: If either ID sequence is invalid or the sequences overlap.
-        FileExistsError: If either manifest already exists; locked splits are not
-            overwritten.
+        FileExistsError: If ``test.txt`` already exists, or ``dev.txt`` exists with
+            different IDs. An existing, identical ``dev.txt`` is kept as it is.
     """
     named_ids = (("dev_ids", dev_ids), ("test_ids", test_ids))
     for name, ids in named_ids:
@@ -148,13 +163,16 @@ def save_split(
     output_dir = Path(out_dir)
     dev_path = output_dir / "dev.txt"
     test_path = output_dir / "test.txt"
-    if dev_path.exists() or test_path.exists():
-        raise FileExistsError("split manifests already exist; refusing to overwrite")
-
     dev_bytes = ("\n".join(sorted(dev_ids)) + "\n").encode("utf-8")
     test_bytes = ("\n".join(sorted(test_ids)) + "\n").encode("utf-8")
+    if test_path.exists():
+        raise FileExistsError("test.txt already exists; refusing to overwrite a locked split")
+    # dev.txt is locked before the test sample; accept it only if it is byte-identical.
+    if dev_path.exists() and dev_path.read_bytes() != dev_bytes:
+        raise FileExistsError("dev.txt has different IDs; refusing to overwrite it")
     output_dir.mkdir(parents=True, exist_ok=True)
-    dev_path.write_bytes(dev_bytes)
+    if not dev_path.exists():
+        dev_path.write_bytes(dev_bytes)
     test_path.write_bytes(test_bytes)
     return hashlib.sha256(test_bytes).hexdigest()
 
