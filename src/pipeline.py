@@ -39,6 +39,27 @@ class PipelineResult:
         return "defective" if self.boxes else "ok"
 
 
+def boxes_to_mask(boxes: list[Box], shape: tuple[int, int]) -> np.ndarray:
+    """Rasterise boxes into one binary mask (pure NumPy).
+
+    Args:
+        boxes: Inclusive boxes (x_min, y_min, x_max, y_max) in pixel coordinates.
+            Parts outside the image are clipped.
+        shape: Output mask shape (H, W).
+
+    Returns:
+        ``bool`` (H, W) mask, True inside any box. All False for an empty list.
+    """
+    height, width = shape
+    mask = np.zeros((height, width), dtype=bool)
+    for x_min, y_min, x_max, y_max in boxes:
+        x0, y0 = max(int(x_min), 0), max(int(y_min), 0)
+        x1, y1 = min(int(x_max), width - 1), min(int(y_max), height - 1)
+        if x0 <= x1 and y0 <= y1:
+            mask[y0:y1 + 1, x0:x1 + 1] = True
+    return mask
+
+
 def baseline_trivial(image: np.ndarray) -> PipelineResult:
     """Baseline 1: fixed global threshold of 127 on the raw grayscale image."""
     raise NotImplementedError("Week 10 - pipeline.baseline_trivial")
