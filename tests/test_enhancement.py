@@ -215,6 +215,7 @@ def test_convolve2d_border_modes(border):
     assert result.dtype == np.float64
     np.testing.assert_array_equal(result, img.astype(np.float64))
 
+
 @pytest.mark.parametrize(
     "border, cv_border",
     [
@@ -259,6 +260,7 @@ def test_convolve2d_matches_opencv(border, cv_border):
 # --------------------------------------------------
 # 8. Mean Filter
 # --------------------------------------------------
+
 
 def test_mean_filter():
     img = np.full((5, 5), 100, dtype=np.uint8)
