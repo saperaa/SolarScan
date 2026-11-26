@@ -1,4 +1,14 @@
 # Demo app
 
-Week 13–14: a small Gradio app on top of `src.run_pipeline` that shows the image after
-every stage and the final count / boxes. Must run on unseen images and show one failure case.
+Launch the local Gradio app from the repository root:
+
+```bash
+python -m app.app --config configs/pipeline_c.yaml
+```
+
+Upload an unseen grayscale EL image to see the configured pipeline stages, final defect mask,
+count, boxes, and area percentage. For failure analysis, optionally upload its Pascal VOC XML
+annotation to compare predicted and ground-truth boxes, box-union IoU, and count error. The app
+calls the shared `src.pipeline.run` backend, which is still a scaffold in this branch;
+inference requires the dispatcher, baselines, and image-processing stages to be integrated.
+Do not commit raw images or annotations.

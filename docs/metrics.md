@@ -38,6 +38,11 @@ true positive if its box IoU ≥ 0.3.
 annotation. 0.3 accepts "found the right defect" while rejecting boxes in the wrong place.
 We also report F1 at 0.5 for comparison.
 
+The evaluator aggregates TP, FP, and FN across evaluated images (micro average) before
+calculating precision, recall, and F1. A zero denominator produces a reported value of 0.
+Per-image counts and metrics are written to `experiments/runs/`; the aggregate summary also
+lists the best- and worst-IoU images and the ten lowest-IoU cases.
+
 ### Absolute count error
 
 `|n_pred − n_gt|` per image, mean over the test set.
