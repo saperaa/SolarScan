@@ -59,6 +59,8 @@ SolarScan/
 │   ├── restoration.py     noise models and restoration filters
 │   ├── frequency.py       DFT, spectrum, frequency-domain filters
 │   ├── psnr_study.py      restoration PSNR-per-noise-type study
+│   ├── run_baselines.py   run + log both baselines on dev (Phase 2)
+│   ├── lock_test_split.py lock the held-out test sample once
 │   ├── segmentation.py    edge detection, thresholding, Hough transform
 │   ├── morphology.py      morphological operations, hole filling, measurement
 │   ├── pipeline.py        baselines and Pipelines A, B, C

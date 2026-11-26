@@ -34,8 +34,9 @@ For each image:
 ## Scope
 
 - **In scope:** defect classes with enough examples and a visible dark signature:
-  `crack`, `finger`, `black_core`, `thick_line`, `star_crack`.
-  Final class list to be confirmed in the Week 10 image analysis.
+  `crack`, `finger`, `black_core`, `thick_line`, `star_crack`, `horizontal_dislocation`,
+  `vertical_dislocation`, `short_circuit` (8 classes, fixed 26 Nov; the list lives in
+  `src.data.IN_SCOPE_CLASSES` and the evaluator scores only these boxes).
 - **Out of scope:** rare classes with fewer than ~50 training examples
   (`corner`, `fragment`, `scratch`, `printing_error`) and classification of the defect type.
   SolarScan localises defects; it does not name them.
