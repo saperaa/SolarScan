@@ -35,7 +35,7 @@ size and seed before final evaluation. Never use test results for tuning.
 | File | Source | SHA-256 | Count | Created |
 |------|--------|---------|------:|---------|
 | dev.txt | trainval, seed 0, dev fraction 0.7 | `02c8a05de5281d5deb55534bbb1cfb1265d4b8495b6c3c23f0d0fd9e58f0ca5e` | 3,150 | 2026-11-26 |
-| test.txt | PVEL-AD test, sample not yet locked | | | |
+| test.txt | 5daff9fbce72faa23d7532febff1aba875395ed492dea89ef1cf5929af168fa4 | 2026-11-26 — 1,000 of the 19,150 external test IDs (seed 0) |
 
 ## Locking the test sample (run once)
 
