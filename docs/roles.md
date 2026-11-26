@@ -10,8 +10,8 @@ full per-member task list is in the team work guide shared by the Tech Lead.
 | # | Role | Member | GitHub | Owns files | NumPy implementations (≥ 2) | Main experiment |
 |---|------|--------|--------|------------|-----------------------------|-----------------|
 | 1 | Tech Lead | Mohamed Alaa | @saperaa | `pipeline.py`, `configs/` | Connected-component labelling; `boxes_to_mask` | Final pipeline at 3 noise levels × 3 seeds |
-| 2 | Data & Baseline | | | `data.py`, `metrics.py`, `baselines.py`, baseline configs | Global threshold; nearest-neighbour downsampling | Resolution & gray-level study; Pipeline A vs baselines |
-| 3 | Enhancement | | | `enhancement.py` | 2-D convolution; histogram equalization | Enhancement comparison; kernel-size study |
+| 2 | Data & Baseline | Abdelrahman | @abdelrahman22wanas | `data.py`, `metrics.py`, `baselines.py`, baseline configs | Global threshold; nearest-neighbour downsampling | Resolution & gray-level study; Pipeline A vs baselines |
+| 3 | Enhancement | Yousef Elhusseiny | @YousefElhusseiny | `enhancement.py` | 2-D convolution; histogram equalization | Enhancement comparison; kernel-size study |
 | 4 | Restoration & Frequency | Omar Hany Elazab | @OmarElshaer1 | `restoration.py`, `frequency.py` | Median filter; Butterworth / notch filter | PSNR per noise type; spatial vs frequency ablation |
 | 5 | Segmentation | Mohamed Alaa | @saperaa | `segmentation.py` | Otsu threshold; Sobel magnitude | Detector & threshold-method studies |
 | 6 | Morphology & Evaluation | | | `morphology.py`, `evaluate.py`, `run_pipeline.py`, `app/` | Erosion & dilation; hole filling | Structuring-element study; failure analysis |
