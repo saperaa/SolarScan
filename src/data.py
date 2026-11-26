@@ -1,5 +1,7 @@
 """Image loading, annotation parsing, data splitting, and controlled noise."""
 
+import hashlib
+from collections.abc import Sequence
 from pathlib import Path
 import xml.etree.ElementTree as ET
 
@@ -96,6 +98,65 @@ def make_split(
     if len(shuffled) >= 2:
         dev_count = min(max(dev_count, 1), len(shuffled) - 1)
     return shuffled[:dev_count], shuffled[dev_count:]
+
+
+def save_split(
+    dev_ids: Sequence[str],
+    test_ids: Sequence[str],
+    out_dir: str | Path,
+) -> str:
+    """Write immutable development and test manifests and return the test SHA-256.
+
+    Args:
+        dev_ids: Nonempty sequence of unique development image IDs.
+        test_ids: Nonempty sequence of unique test image IDs, disjoint from ``dev_ids``.
+        out_dir: Directory in which to create ``dev.txt`` and ``test.txt``.
+
+    Returns:
+        SHA-256 hex digest of the exact UTF-8 bytes written to ``test.txt``.
+
+    Raises:
+        ValueError: If either ID sequence is invalid or the sequences overlap.
+        FileExistsError: If either manifest already exists; locked splits are not
+            overwritten.
+    """
+    named_ids = (("dev_ids", dev_ids), ("test_ids", test_ids))
+    for name, ids in named_ids:
+        if not isinstance(ids, Sequence) or isinstance(ids, (str, bytes)):
+            raise ValueError(f"{name} must be a sequence of image IDs")
+        if not ids:
+            raise ValueError(f"{name} must not be empty")
+        if any(
+            not isinstance(image_id, str)
+            or not image_id
+            or image_id in {".", ".."}
+            or image_id != image_id.strip()
+            or "/" in image_id
+            or "\\" in image_id
+            or "\x00" in image_id
+            or "\n" in image_id
+            or "\r" in image_id
+            for image_id in ids
+        ):
+            raise ValueError(f"{name} must contain nonempty, single-line IDs")
+        if len(set(ids)) != len(ids):
+            raise ValueError(f"{name} must contain unique IDs")
+
+    if set(dev_ids) & set(test_ids):
+        raise ValueError("dev_ids and test_ids must be disjoint")
+
+    output_dir = Path(out_dir)
+    dev_path = output_dir / "dev.txt"
+    test_path = output_dir / "test.txt"
+    if dev_path.exists() or test_path.exists():
+        raise FileExistsError("split manifests already exist; refusing to overwrite")
+
+    dev_bytes = ("\n".join(sorted(dev_ids)) + "\n").encode("utf-8")
+    test_bytes = ("\n".join(sorted(test_ids)) + "\n").encode("utf-8")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    dev_path.write_bytes(dev_bytes)
+    test_path.write_bytes(test_bytes)
+    return hashlib.sha256(test_bytes).hexdigest()
 
 
 def _validate_noise_input(image: np.ndarray, level: float) -> None:
