@@ -222,3 +222,23 @@ def median_smooth(img, ksize, border="reflect"):
             output[i, j] = np.median(region)
 
     return output
+
+
+def laplacian_sharpen(img, alpha):
+    """
+    Sharpen a grayscale image using the Laplacian operator.
+
+    Input: uint8 image (0-255), sharpening strength alpha.
+    Output: uint8 image (0-255).
+    """
+    kernel = np.array([
+        [0, 1, 0],
+        [1, -4, 1],
+        [0, 1, 0]
+    ], dtype=np.float64)
+
+    laplacian = convolve2d(img, kernel, border="reflect")
+
+    result = img.astype(np.float64) - alpha * laplacian
+
+    return np.clip(result, 0, 255).astype(np.uint8)
