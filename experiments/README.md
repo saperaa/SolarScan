@@ -7,3 +7,8 @@
 - `figures/` — figures used in the report (stage-by-stage images, spectra, plots).
 - Tuning is one factor at a time from a fixed reference configuration, on the dev set only.
 - Evaluate the held-out test manifest once, after the final configuration has been selected.
+
+## Studies
+
+- Restoration PSNR per noise type: `python -m src.psnr_study --out experiments/psnr_<name>.csv`.
+  Synthetic runs are dry runs only; log real dev-set runs in `experiment_log.csv`.
