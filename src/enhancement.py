@@ -101,3 +101,54 @@ def clahe(img, clip, tiles):
     )
 
     return clahe_obj.apply(img)
+
+
+def convolve2d(img, kernel, border):
+    """
+    Apply 2D convolution using NumPy.
+
+    Input: Grayscale image and 2D kernel.
+    Output: float64 image.
+    Border modes: zero, replicate, reflect.
+    """
+    img = img.astype(np.float64)
+    kernel = np.array(kernel, dtype=np.float64)
+
+    if kernel.ndim != 2 or any(size % 2 == 0 for size in kernel.shape):
+        raise ValueError("Kernel dimensions must be odd")
+
+    pad_h = kernel.shape[0] // 2
+    pad_w = kernel.shape[1] // 2
+
+    if border == "zero":
+        padded = np.pad(
+            img, ((pad_h, pad_h), (pad_w, pad_w)),
+            mode="constant"
+        )
+    elif border == "replicate":
+        padded = np.pad(
+            img, ((pad_h, pad_h), (pad_w, pad_w)),
+            mode="edge"
+        )
+    elif border == "reflect":
+        padded = np.pad(
+            img, ((pad_h, pad_h), (pad_w, pad_w)),
+            mode="reflect"
+        )
+    else:
+        raise ValueError("Invalid border mode")
+
+    flipped_kernel = np.flip(kernel)
+
+    output = np.zeros(img.shape, dtype=np.float64)
+
+    for i in range(img.shape[0]):
+        for j in range(img.shape[1]):
+            region = padded[
+                i:i + kernel.shape[0],
+                j:j + kernel.shape[1]
+            ]
+
+            output[i, j] = np.sum(region * flipped_kernel)
+
+    return output
